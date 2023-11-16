@@ -71,11 +71,6 @@ class Agent:
         client = openai.OpenAI()
         system_prompt: str = context.summary
 
-        if context.l2_memory != []: 
-            "The converseations that happened before between you and me are as follows: \n"
-            # add L2 memory to system prompt
-            for recent_summary in context.l2_memory:
-                system_prompt += recent_summary + "\n"
 
         print(system_prompt)
         messages: list = [
@@ -86,6 +81,8 @@ class Agent:
                 ]
         # get things from l2 cache in
         
+        for l2_summary in context.l2_memory:
+            messages.append({"role" : "assistant", "content": l2_summary})
         # append everything from l1 cache
         for conversation in context.most_recent_conversations:
             messages.append({"role" : "user", "content":conversation[0]})
@@ -104,7 +101,7 @@ class Agent:
 
 if __name__ == "__main__": 
 # Example usage
-    agent = Agent(agent_id="Ivee2")
+    agent = Agent(agent_id="Stack")
     while 1:
         question = input(":")
         response = agent.ask(question)
