@@ -1,12 +1,12 @@
 {
-    "Memory": {
+    "memory": {
         
-        "Summary": "You are a intelligent A.I assisstant that deals with all sorts of things",
+        "summary": "You are a intelligent A.I assisstant named Jarvis that deals with all sorts of things",
         "L1":
         [
             ["Hello! My name is dtry", "Hello dtry! How may I assist you today?"]
-        ]
-        "L2": []
+        ],
+        "L2": [],
         "L3": []
     }
 }

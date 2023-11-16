@@ -1,5 +1,6 @@
 import os
 import threading
+import json
 from typing import Optional
 import openai
 from memory import Memory, Context
@@ -7,16 +8,27 @@ from memory import Memory, Context
 # from openai import GPT
 
 class Agent:
-    def __init__(self, agent_id: str="", agent_summary: str=""):
-        
-        memory_dict: dict|None = None
-        if agent_id != "":
-            #TODO: Implement serialization and de-serialization
-            # de-serialize agent memory from JSON
-            raise NotImplementedError("De-serialization not implemented yet")
+    
+    __AGENTS_DIR: str = "agents/"
+    def __init__(self, agent_id: str, agent_summary: str=""):
+        agent_data: dict = {}
+        memory_data: dict = {}
+        # Check if agent exists
+        if os.path.exists(os.path.join(self.__AGENTS_DIR, f"{agent_id}.json")):
+            # read agent from file
+            print(f"Agent {agent_id} exists, de-serializing...")
+            with open(os.path.join(self.__AGENTS_DIR, f"{agent_id}.json"), "r") as f:
+                agent_data: dict = json.load(f) 
+                memory_data = agent_data["memory"]
 
+        if memory_data != {}:
+            if agent_summary != "":
+                raise Exception("Agent already exists, cannot create new agent with summary")
+        else:
+            memory_data["summary"] = agent_summary
+            
         # intiailize memory
-        self.memory: Memory = Memory(memory_dict, summary=agent_summary)
+        self.memory: Memory = Memory(memory_data)
 
         # Initialize OpenAI
         openai_key: str|None = os.environ.get("OPENAI_API_KEY")
@@ -67,8 +79,6 @@ class Agent:
         return completion.choices[0].message.content
 
 # Example usage
-agent = Agent(agent_summary="You're a very funny person who laughs and makes fun of everything I say")
-response = agent.ask("Hello, my name is dtry")
-print(response)
+agent = Agent(agent_id="jarvis")
 response = agent.ask("What is my name?")
 print(response)

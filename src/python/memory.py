@@ -10,14 +10,10 @@ class Context:
 
         
 class Memory:
-    def __init__(self, memory_dict: 'dict|None' = None, summary: str = ""):
-        if memory_dict is not None:
-            #TODO: implement de-serialziation
-            raise NotImplementedError("De-serialization not implemented yet")
-        
-        self.__L1_cache: list = []  # List to store recent conversations
-        self.__L2_cache: list = []  # List to store synopses of conversations
-        self.__summary: str = summary
+    def __init__(self, memory_dict: 'dict'):
+        self.__L1_cache: list = memory_dict["L1"]  # List to store recent conversations
+        self.__L2_cache: list = memory_dict["L2"]  # List to store synopses of conversations
+        self.__summary: str = memory_dict["summary"]
 
 
     def memorize(self, user_input: str, agent_input: str):
