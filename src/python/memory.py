@@ -68,7 +68,7 @@ class Memory:
                 messages.append({"role" : "assistant", "content": conversation[1]})
             
             messages.append({"role": "user", 
-                             "content" : "Please give a summary of all of the above conversations. The summary should be concise and captures the essense of the conversations. Important details should be retained. The summary should be made in first-person perspective from the assistant's perspective. Summary: "})
+                             "content" : "Please give a summary of all of the above conversations. The summary should be concise and captures the essense of the conversations. Important details should be retained, especially details regarding names. The summary should be made in first-person perspective from the assistant's perspective. Summary: "})
             completion = openai_client.chat.completions.create(
                     model="gpt-3.5-turbo-1106",
                     messages = messages

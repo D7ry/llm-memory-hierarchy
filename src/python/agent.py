@@ -96,12 +96,11 @@ class Agent:
                 model="gpt-3.5-turbo-1106",
                 messages = messages
                 )
-        print(messages)
         return completion.choices[0].message.content
 
 if __name__ == "__main__": 
 # Example usage
-    agent = Agent(agent_id="Stack")
+    agent = Agent(agent_id="Jarvis")
     while 1:
         question = input(":")
         response = agent.ask(question)
