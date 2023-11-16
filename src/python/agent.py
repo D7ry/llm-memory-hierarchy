@@ -1,4 +1,5 @@
 import os
+import threading
 from typing import Optional
 import openai
 from memory import Memory, Context
@@ -29,10 +30,10 @@ class Agent:
         context: Context = self.memory.get_memory(question)
         # Placeholder for querying OpenAI's GPT API
         response: str|None = self.__query_gpt_api(question, context)
-        # TODO: paralllize memoirzation 
         # Update memory after the conversation
         if response is not None: 
-            self.memory.memorize(question, response)
+            # dispatch a thread to update memory
+            threading.Thread(target=self.memory.memorize, args=[question, response]).start()
         return response
 
 

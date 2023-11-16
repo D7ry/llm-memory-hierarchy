@@ -37,4 +37,5 @@ class Memory:
     def get_memory(self, user_input: str) -> Context:
         #l3_memory: list[str] = self.__get_relevant_l3_cache(user_input)
         l3_memory = []
-        return Context(self.__L1_cache, self.__L2_cache, l3_memory, self.__summary)
+        ret = Context(self.__L1_cache, self.__L2_cache, l3_memory, self.__summary)
+        return ret
