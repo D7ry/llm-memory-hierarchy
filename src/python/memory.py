@@ -1,5 +1,8 @@
 import os
-
+import openai
+#TODO: make cache limit customizable by user through agent
+L1_CACHE_LIMIT: int = 1000
+L1_CACHE_FLUSH_THRESHOLD: int = int(0.3 * L1_CACHE_LIMIT) # once L1 cache hits limit, flush L1 cache until it has less than L1_CACHE_FLUSH_THRESHOLD characters
 class Context:
     def __init__(self, l1_memory: 'list[tuple[str, str]]', l2_memory: 'list[str]', l3_memory: 'list[str]', summary: str):
         self.most_recent_conversations: list[tuple[str, str]] = l1_memory
@@ -25,7 +28,7 @@ class Memory:
         self.__L1_cache.append(
                 (user_input, agent_input)
                 )
-        #self.__check_cache_overflow()
+        self.__check_and_flush_cache()
        
     def serialize(self):
         return {
@@ -34,13 +37,45 @@ class Memory:
                 "summary": self.__summary
                 }
 
-    def __check_cache_overflow(self):
+    def __check_and_flush_cache(self):
         """
         Checks if each level of the cache is full, and if is, flush to the next level.
         Currently we only use FIFO for eviction policy.
         """
-        #TODO: implement cache overflow check, and flush cache
-        raise NotImplementedError("Cache overflow check not implemented yet")
+        # check L1 cache
+        l1_char_count: int = 0
+        for conversation in self.__L1_cache:
+            l1_char_count += len(conversation[0]) + len(conversation[1])
+        print("current L1 cache size: ", l1_char_count) 
+        if l1_char_count > L1_CACHE_LIMIT:
+            print("L1 cache overflow detected! flushing to L2 cache...")
+            # flushing L1 cache to L2 
+            openai_client: openai.OpenAI = openai.OpenAI()
+            # accumulate conversations to flush
+            to_flush: list[tuple[str, str]] = []
+            while l1_char_count > L1_CACHE_FLUSH_THRESHOLD:
+                to_flush.append(self.__L1_cache.pop(0))
+                l1_char_count -= len(to_flush[-1][0]) + len(to_flush[-1][1])
+            
+            messages: list = [
+                        {
+                        "role" : "system",
+                        "content" : self.__summary
+                        }
+                    ]
+            for conversation in to_flush:
+                messages.append({"role" : "user", "content":conversation[0]})
+                messages.append({"role" : "assistant", "content": conversation[1]})
+            
+            messages.append({"role": "user", 
+                             "content" : "Please give me a summary of all of the above conversations. The summary should be concise and captures the essense of the conversations. Important details should be retained. Summary: "})
+            completion = openai_client.chat.completions.create(
+                    model="gpt-3.5-turbo-1106",
+                    messages = messages
+                    )
+            summarized: str|None= completion.choices[0].message.content
+            if summarized is not None: 
+                self.__L2_cache.append(summarized)
 
     def __get_relevant_l3_cache(self, user_input: str) -> 'list[str]':
         #TODO: implement L3 cache fetching

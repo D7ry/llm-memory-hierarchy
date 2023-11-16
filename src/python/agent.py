@@ -49,7 +49,8 @@ class Agent:
         # Update memory after the conversation
         if response is not None: 
             # dispatch a thread to update memory
-            threading.Thread(target=self.memorize_and_serialize, args=[question, response]).start()
+            t = threading.Thread(target=self.memorize_and_serialize, args=[question, response])
+            t.start()
         return response
 
     def memorize_and_serialize(self, user_message: str, agent_message: str):
@@ -68,10 +69,19 @@ class Agent:
         # Placeholder for querying OpenAI's GPT API
         # response = GPT.query(question, context)
         client = openai.OpenAI()
+        system_prompt: str = context.summary
+
+        if context.l2_memory != []: 
+            "The converseations that happened before between you and me are as follows: \n"
+            # add L2 memory to system prompt
+            for recent_summary in context.l2_memory:
+                system_prompt += recent_summary + "\n"
+
+        print(system_prompt)
         messages: list = [
                     {
                     "role" : "system",
-                    "content" : context.summary
+                    "content" : system_prompt
                     }
                 ]
         # get things from l2 cache in
@@ -84,7 +94,7 @@ class Agent:
         # append question
         messages.append({"role": "user", "content" : question})
        
-        
+        print("querying openAI...")
         completion = client.chat.completions.create(
                 model="gpt-3.5-turbo-1106",
                 messages = messages
@@ -92,7 +102,10 @@ class Agent:
         print(messages)
         return completion.choices[0].message.content
 
+if __name__ == "__main__": 
 # Example usage
-agent = Agent(agent_id="Stack", agent_summary="You're a stack overflow bot who is capable of solving any coding questions.")
-response = agent.ask("How do I print hello world in python?")
-print(response)
+    agent = Agent(agent_id="Ivee2")
+    while 1:
+        question = input(":")
+        response = agent.ask(question)
+        print(response)
