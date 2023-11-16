@@ -21,6 +21,7 @@ class Agent:
                 agent_data: dict = json.load(f) 
                 memory_data = agent_data["memory"]
 
+        self.__id: str = agent_id
         if memory_data != {}:
             if agent_summary != "":
                 raise Exception("Agent already exists, cannot create new agent with summary")
@@ -45,9 +46,19 @@ class Agent:
         # Update memory after the conversation
         if response is not None: 
             # dispatch a thread to update memory
-            threading.Thread(target=self.memory.memorize, args=[question, response]).start()
+            threading.Thread(target=self.memorize_and_serialize, args=[question, response]).start()
         return response
 
+    def memorize_and_serialize(self, user_message: str, agent_message: str):
+        self.memory.memorize(user_message, agent_message)
+        self.serialize()
+    
+    def serialize(self):
+        # serialize agent to .json file
+        with open(os.path.join(self.__AGENTS_DIR, f"{self.__id}.json"), "w") as f:
+            json.dump({
+                "memory":self.memory.serialize()
+                }, f)
 
 
     def __query_gpt_api(self, question, context: Context) -> Optional[str]:
@@ -80,5 +91,5 @@ class Agent:
 
 # Example usage
 agent = Agent(agent_id="jarvis")
-response = agent.ask("What is my name?")
+response = agent.ask("What is the last question that I have asked?")
 print(response)

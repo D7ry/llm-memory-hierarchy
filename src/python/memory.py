@@ -17,12 +17,28 @@ class Memory:
 
 
     def memorize(self, user_input: str, agent_input: str):
+        """
+        Memorize a conversation between the user and agent.
+        Internally, cache user and agent input into the L1 cache.
+        Automatically flush L1 cache to L2 when L1 cache is full, and flush L2 cache to L3 when L2 cache is full. 
+        """
         self.__L1_cache.append(
                 (user_input, agent_input)
                 )
-        
+        self.__check_cache_overflow()
+       
+    def serialize(self):
+        return {
+                "L1": self.__L1_cache,
+                "L2": self.__L2_cache,
+                "summary": self.__summary
+                }
 
     def __check_cache_overflow(self):
+        """
+        Checks if each level of the cache is full, and if is, flush to the next level.
+        Currently we only use FIFO for eviction policy.
+        """
         #TODO: implement cache overflow check, and flush cache
         raise NotImplementedError("Cache overflow check not implemented yet")
 
