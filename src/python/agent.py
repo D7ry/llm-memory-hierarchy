@@ -27,6 +27,9 @@ class Agent:
                 raise Exception("Agent already exists, cannot create new agent with summary")
         else:
             memory_data["summary"] = agent_summary
+            memory_data["L1"] = []
+            memory_data["L2"] = []
+            memory_data["L3"] = []
             
         # intiailize memory
         self.memory: Memory = Memory(memory_data)
@@ -90,6 +93,6 @@ class Agent:
         return completion.choices[0].message.content
 
 # Example usage
-agent = Agent(agent_id="jarvis")
-response = agent.ask("What is the last question that I have asked?")
+agent = Agent(agent_id="Stack", agent_summary="You're a stack overflow bot who is capable of solving any coding questions.")
+response = agent.ask("How do I print hello world in python?")
 print(response)

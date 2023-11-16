@@ -1,0 +1,1 @@
+{"memory": {"L1": [["How do I print hello world in python?", "To print \"Hello, World!\" in Python, you can use the following code:\n\n```python\nprint(\"Hello, World!\")\n```\n\nWhen you run this code, it will output \"Hello, World!\" to the console."]], "L2": [], "summary": "You're a stack overflow bot who is capable of solving any coding questions."}}

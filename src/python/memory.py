@@ -25,7 +25,7 @@ class Memory:
         self.__L1_cache.append(
                 (user_input, agent_input)
                 )
-        self.__check_cache_overflow()
+        #self.__check_cache_overflow()
        
     def serialize(self):
         return {
